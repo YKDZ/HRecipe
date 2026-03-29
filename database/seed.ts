@@ -14,6 +14,7 @@ import type { dbSqlite } from "./drizzle/db";
 
 import { relations } from "./drizzle/relations";
 import { ingredientsTable } from "./drizzle/schema/ingredients";
+import { metadataTable } from "./drizzle/schema/metadata";
 import { recipesTable, recipeStepsTable } from "./drizzle/schema/recipes";
 import {
   recipeIngredientsTable,
@@ -1198,93 +1199,102 @@ const recipeSeedData = [
 // ── 核心 seed 函数（可从外部调用） ──
 
 export const seed = (db: ReturnType<typeof dbSqlite>) => {
-  // 如果已有食谱数据则跳过
-  const existing = db
-    .select({ count: sql<number>`count(*)` })
-    .from(recipesTable)
+  // 通过 _metadata 表检查是否已完成 seed
+  const seeded = db
+    .select()
+    .from(metadataTable)
+    .where(sql`${metadataTable.key} = 'seed_completed'`)
     .get();
-  if (existing && existing.count > 0) {
+  if (seeded) {
     return;
   }
 
   console.log("Seeding database...");
 
-  // 插入标签
-  db.insert(tagsTable).values(tags).run();
+  // 使用事务保证原子性：要么全部插入成功，要么全部回滚
+  db.transaction((tx) => {
+    // 插入标签
+    tx.insert(tagsTable).values(tags).run();
 
-  // 插入食材
-  db.insert(ingredientsTable).values(ingredients).run();
+    // 插入食材
+    tx.insert(ingredientsTable).values(ingredients).run();
 
-  // 插入食谱及关联数据
-  for (const recipe of recipeSeedData) {
-    const recipeId = id();
-    const createdAt = ago(recipe.daysAgo);
+    // 插入食谱及关联数据
+    for (const recipe of recipeSeedData) {
+      const recipeId = id();
+      const createdAt = ago(recipe.daysAgo);
 
-    // 食谱主体
-    db.insert(recipesTable)
-      .values({
-        id: recipeId,
-        name: recipe.name,
-        description: recipe.description,
-        estimatedTime: recipe.estimatedTime,
-        coverImage: recipe.coverImage ?? null,
-        createdAt,
-        updatedAt: createdAt,
-      })
+      // 食谱主体
+      tx.insert(recipesTable)
+        .values({
+          id: recipeId,
+          name: recipe.name,
+          description: recipe.description,
+          estimatedTime: recipe.estimatedTime,
+          coverImage: recipe.coverImage ?? null,
+          createdAt,
+          updatedAt: createdAt,
+        })
+        .run();
+
+      // 步骤
+      tx.insert(recipeStepsTable)
+        .values(
+          recipe.steps.map((s, i) => ({
+            id: id(),
+            recipeId,
+            sortOrder: i,
+            name: s.name,
+            content: s.content,
+          })),
+        )
+        .run();
+
+      // 食谱-食材关联
+      tx.insert(recipeIngredientsTable)
+        .values(
+          recipe.ingredients.map((ri) => ({
+            id: id(),
+            recipeId,
+            ingredientId: ingId(ri.name),
+            quantity: ri.quantity,
+            unit: ri.unit ?? null,
+            note: ri.note ?? null,
+          })),
+        )
+        .run();
+
+      // 食谱-标签关联
+      tx.insert(recipeTagsTable)
+        .values(
+          recipe.tags.map((t) => ({
+            id: id(),
+            recipeId,
+            tagId: tagId(t),
+          })),
+        )
+        .run();
+
+      // 评论
+      tx.insert(reviewsTable)
+        .values(
+          recipe.reviews.map((r, i) => ({
+            id: id(),
+            recipeId,
+            author: r.author,
+            rating: r.rating,
+            comment: r.comment,
+            createdAt: new Date(createdAt.getTime() + (i + 1) * 86_400_000),
+          })),
+        )
+        .run();
+    }
+
+    // 标记 seed 完成
+    tx.insert(metadataTable)
+      .values({ key: "seed_completed", value: new Date().toISOString() })
       .run();
-
-    // 步骤
-    db.insert(recipeStepsTable)
-      .values(
-        recipe.steps.map((s, i) => ({
-          id: id(),
-          recipeId,
-          sortOrder: i,
-          name: s.name,
-          content: s.content,
-        })),
-      )
-      .run();
-
-    // 食谱-食材关联
-    db.insert(recipeIngredientsTable)
-      .values(
-        recipe.ingredients.map((ri) => ({
-          id: id(),
-          recipeId,
-          ingredientId: ingId(ri.name),
-          quantity: ri.quantity,
-          unit: ri.unit ?? null,
-          note: ri.note ?? null,
-        })),
-      )
-      .run();
-
-    // 食谱-标签关联
-    db.insert(recipeTagsTable)
-      .values(
-        recipe.tags.map((t) => ({
-          id: id(),
-          recipeId,
-          tagId: tagId(t),
-        })),
-      )
-      .run();
-
-    // 评论
-    db.insert(reviewsTable)
-      .values(
-        recipe.reviews.map((r, i) => ({
-          id: id(),
-          recipeId,
-          author: r.author,
-          rating: r.rating,
-          comment: r.comment,
-          createdAt: new Date(createdAt.getTime() + (i + 1) * 86_400_000),
-        })),
-      )
-      .run();
-  }
+  }); // end transaction
 
   console.log("Seed data has been successfully populated!");
 };
