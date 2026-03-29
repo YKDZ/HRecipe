@@ -1209,6 +1209,19 @@ export const seed = (db: ReturnType<typeof dbSqlite>) => {
     return;
   }
 
+  // 兼容从旧版本升级：数据已存在但无 _metadata 标记
+  const existingData = db
+    .select({ count: sql<number>`count(*)` })
+    .from(tagsTable)
+    .get();
+  if (existingData && existingData.count > 0) {
+    console.log("Existing data detected, marking seed as completed...");
+    db.insert(metadataTable)
+      .values({ key: "seed_completed", value: "migrated" })
+      .run();
+    return;
+  }
+
   console.log("Seeding database...");
 
   // 使用事务保证原子性：要么全部插入成功，要么全部回滚

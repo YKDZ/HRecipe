@@ -13,6 +13,9 @@ export default {
     "locale",
     "localePreference",
     "colorSchemePreference",
+    "forceFallbackLocale",
+    "hideLanguageSwitcher",
+    "reviewsEnabled",
   ],
 
   headHtmlBegin: `<script>!function(){try{var m=document.cookie.match(/(?:^|;\\s*)theme=(light|dark|auto)/),v=m&&m[1],d=document.documentElement;if(v==="dark")d.classList.add("dark");else if(!v||v==="auto"){if(window.matchMedia("(prefers-color-scheme:dark)").matches)d.classList.add("dark")}}catch(e){}}()</script>`,
