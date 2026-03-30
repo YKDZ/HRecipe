@@ -12,6 +12,7 @@
     "i18n:check": "node scripts/sync-i18n.mjs --check",
     "i18n:sync": "node scripts/sync-i18n.mjs",
     "lint": "vp lint --type-aware .",
+    "precommit": "vp check --fix && pnpm typecheck && pnpm i18n:sync",
     "preview": "vike build && vike preview",
     "prod": "vike build && node ./dist/server/index.mjs",
     "test": "vp test run",
