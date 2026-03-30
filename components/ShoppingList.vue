@@ -4,6 +4,7 @@ import { useI18n } from "vue-i18n";
 import { toast } from "vue-sonner";
 
 import { Button } from "@/components/ui/button";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import {
   Table,
   TableBody,
@@ -85,66 +86,69 @@ const handleCopyText = () => {
       </div>
     </div>
 
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>{{ t("名称") }}</TableHead>
-          <TableHead>{{ t("用量") }}</TableHead>
-          <TableHead>{{ t("备注") }}</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        <!-- 合并视图：数值同单位求和 -->
-        <template v-if="showMerged">
-          <TableRow
-            v-for="item in mergedItems"
-            :key="`${item.ingredientId}::${item.note ?? ''}`"
-          >
-            <TableCell>{{ item.ingredientName }}</TableCell>
-            <TableCell>
-              <div class="space-y-0.5">
-                <div v-for="(line, i) in item.lines" :key="i" class="text-sm">
-                  {{ line.display }}
-                  <span
-                    v-if="!isSingleRecipe"
-                    class="text-xs text-(--color-on-surface-muted)"
-                  >
-                    （{{ line.recipeNames.join(", ") }}）
-                  </span>
-                </div>
-              </div>
-            </TableCell>
-            <TableCell class="text-sm text-(--color-on-surface-muted)">
-              {{ item.note || "—" }}
-            </TableCell>
+    <ScrollArea class="h-[calc(80vh-10rem)]">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>{{ t("名称") }}</TableHead>
+            <TableHead>{{ t("用量") }}</TableHead>
+            <TableHead>{{ t("备注") }}</TableHead>
           </TableRow>
-        </template>
-        <!-- 分离视图：同食材合并行，用量分开显示 -->
-        <template v-else>
-          <TableRow
-            v-for="item in groupedItems"
-            :key="`${item.ingredientId}::${item.note ?? ''}`"
-          >
-            <TableCell>{{ item.ingredientName }}</TableCell>
-            <TableCell>
-              <div class="space-y-0.5">
-                <div v-for="(a, i) in item.amounts" :key="i" class="text-sm">
-                  {{ amountDisplay(a) }}
-                  <span
-                    v-if="!isSingleRecipe"
-                    class="text-xs text-(--color-on-surface-muted)"
-                  >
-                    （{{ a.recipeName }}）
-                  </span>
+        </TableHeader>
+        <TableBody>
+          <!-- 合并视图：数值同单位求和 -->
+          <template v-if="showMerged">
+            <TableRow
+              v-for="item in mergedItems"
+              :key="`${item.ingredientId}::${item.note ?? ''}`"
+            >
+              <TableCell>{{ item.ingredientName }}</TableCell>
+              <TableCell>
+                <div class="space-y-0.5">
+                  <div v-for="(line, i) in item.lines" :key="i" class="text-sm">
+                    {{ line.display }}
+                    <span
+                      v-if="!isSingleRecipe"
+                      class="text-xs text-(--color-on-surface-muted)"
+                    >
+                      （{{ line.recipeNames.join(", ") }}）
+                    </span>
+                  </div>
                 </div>
-              </div>
-            </TableCell>
-            <TableCell class="text-sm text-(--color-on-surface-muted)">
-              {{ item.note || "—" }}
-            </TableCell>
-          </TableRow>
-        </template>
-      </TableBody>
-    </Table>
+              </TableCell>
+              <TableCell class="text-sm text-(--color-on-surface-muted)">
+                {{ item.note || "—" }}
+              </TableCell>
+            </TableRow>
+          </template>
+          <!-- 分离视图：同食材合并行，用量分开显示 -->
+          <template v-else>
+            <TableRow
+              v-for="item in groupedItems"
+              :key="`${item.ingredientId}::${item.note ?? ''}`"
+            >
+              <TableCell>{{ item.ingredientName }}</TableCell>
+              <TableCell>
+                <div class="space-y-0.5">
+                  <div v-for="(a, i) in item.amounts" :key="i" class="text-sm">
+                    {{ amountDisplay(a) }}
+                    <span
+                      v-if="!isSingleRecipe"
+                      class="text-xs text-(--color-on-surface-muted)"
+                    >
+                      （{{ a.recipeName }}）
+                    </span>
+                  </div>
+                </div>
+              </TableCell>
+              <TableCell class="text-sm text-(--color-on-surface-muted)">
+                {{ item.note || "—" }}
+              </TableCell>
+            </TableRow>
+          </template>
+        </TableBody>
+      </Table>
+      <ScrollBar orientation="horizontal" />
+    </ScrollArea>
   </div>
 </template>

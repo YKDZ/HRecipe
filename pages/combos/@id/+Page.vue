@@ -26,7 +26,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 import type { Data } from "./+data";
 
@@ -130,9 +129,7 @@ const shoppingItems = computed<ShoppingItem[]>(() =>
         <DialogHeader>
           <DialogTitle>{{ t("采购表") }}</DialogTitle>
         </DialogHeader>
-        <ScrollArea class="h-[calc(80vh-6rem)]">
-          <ShoppingList :items="shoppingItems" :title="data.combo.name" />
-        </ScrollArea>
+        <ShoppingList :items="shoppingItems" :title="data.combo.name" />
       </DialogContent>
     </Dialog>
   </div>
