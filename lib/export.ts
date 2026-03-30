@@ -165,7 +165,3 @@ export const exportMergedAsText = (
   }
   return lines.join("\n");
 };
-
-export const copyToClipboard = (text: string) => {
-  void navigator.clipboard.writeText(text);
-};

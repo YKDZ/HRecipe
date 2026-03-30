@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useClipboard } from "@vueuse/core";
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { toast } from "vue-sonner";
@@ -15,7 +16,6 @@ import {
 } from "@/components/ui/table";
 import {
   buildMergedItems,
-  copyToClipboard,
   exportGroupedAsText,
   exportMergedAsText,
   groupShoppingItems,
@@ -39,6 +39,7 @@ const props = withDefaults(
 );
 
 const { t } = useI18n();
+const { copy, copied } = useClipboard({ legacy: true });
 const showMerged = ref(true);
 
 const isSingleRecipe = computed(() => {
@@ -58,8 +59,9 @@ const handleCopyText = () => {
   const text = showMerged.value
     ? exportMergedAsText(mergedItems.value, titleStr, isSingleRecipe.value)
     : exportGroupedAsText(groupedItems.value, titleStr, isSingleRecipe.value);
-  copyToClipboard(text);
-  toast(t("已复制到剪贴板"));
+  void copy(text).then(() => {
+    toast(t("已复制到剪贴板"));
+  });
 };
 </script>
 
