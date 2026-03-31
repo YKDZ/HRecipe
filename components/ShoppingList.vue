@@ -224,7 +224,7 @@ const handleCopyText = () => {
         <DialogHeader>
           <DialogTitle>{{ t("手动复制") }}</DialogTitle>
           <DialogDescription>
-            {{ t("自动复制不可用，请手动全选并复制以下内容") }}
+            {{ t("自动复制不可用，请手动复制以下内容") }}
           </DialogDescription>
         </DialogHeader>
         <ScrollArea class="h-64 w-full rounded-md border">
