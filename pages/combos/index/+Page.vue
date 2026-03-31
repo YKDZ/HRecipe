@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Plus } from "lucide-vue-next";
 import { useData } from "vike-vue/useData";
 import { navigate } from "vike/client/router";
 import { ref } from "vue";
@@ -28,6 +29,7 @@ const combos = ref(data.combos);
     <div class="mb-6 flex items-center justify-between">
       <h1 class="text-2xl font-bold">{{ t("搭配") }}</h1>
       <Button @click="navigate('/combos/new')">
+        <Plus />
         {{ t("新建搭配") }}
       </Button>
     </div>

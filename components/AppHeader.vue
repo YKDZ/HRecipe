@@ -134,7 +134,7 @@ const handleImportFile = async (e: Event) => {
       <div class="hidden items-center gap-3 md:flex">
         <!-- New Recipe button -->
         <Button variant="outline" @click="navigate('/recipe/new')">
-          <Plus class="size-4" />
+          <Plus />
           {{ t("新建食谱") }}
         </Button>
 
@@ -237,7 +237,7 @@ const handleImportFile = async (e: Event) => {
           navigate('/recipe/new');
         "
       >
-        <Plus class="size-4" />
+        <Plus />
         {{ t("新建食谱") }}
       </Button>
       <Button

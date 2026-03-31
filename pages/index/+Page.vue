@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useDebounceFn, useIntersectionObserver } from "@vueuse/core";
-import { Search } from "lucide-vue-next";
+import { Plus, Search } from "lucide-vue-next";
 import { useData } from "vike-vue/useData";
 import { navigate } from "vike/client/router";
 import { ref, watch } from "vue";
@@ -219,6 +219,7 @@ useIntersectionObserver(sentinelRef, ([entry]) => {
         {{ t("暂无食谱") }}
       </p>
       <Button @click="navigate('/recipe/new')">
+        <Plus class="size-4" />
         {{ t("新建食谱") }}
       </Button>
     </div>
