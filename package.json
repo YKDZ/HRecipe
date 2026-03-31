@@ -3,8 +3,8 @@
   "scripts": {
     "build": "vike build",
     "dev": "vike dev",
-    "docker:build": "docker buildx build -t ykdz/hrecipe .",
-    "docker:run": "docker run ykdz/hrecipe",
+    "docker:build": "docker buildx build -t ykdz/speciality .",
+    "docker:run": "docker run ykdz/speciality",
     "drizzle:generate": "drizzle-kit generate",
     "drizzle:migrate": "drizzle-kit migrate",
     "drizzle:studio": "drizzle-kit studio",

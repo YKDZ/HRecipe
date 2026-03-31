@@ -1,6 +1,6 @@
 <div align="center">
-  <img src="assets/logo.svg" alt="HRecipe" width="80" />
-  <h1>HRecipe</h1>
+  <img src="assets/logo.svg" alt="Speciality" width="80" />
+  <h1>Speciality</h1>
   <p><b>A lovely home recipe management app focused on practicality.</b></p>
   <p>
     <b>English</b>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="README_ZH_CN.md">简体中文</a>
@@ -60,10 +60,10 @@
 
 ```bash
 docker run -d \
-  --name hrecipe \
+  --name speciality \
   -p 3000:3000 \
-  -v hrecipe-data:/app/data \
-  ghcr.io/ykdz/hrecipe
+  -v speciality-data:/app/data \
+  ghcr.io/ykdz/speciality
 ```
 
 Visit `http://localhost:3000` to get started.
@@ -76,16 +76,16 @@ Create a `compose.yml`:
 
 ```yaml
 services:
-  hrecipe:
-    image: ghcr.io/ykdz/hrecipe
-    container_name: hrecipe
+  speciality:
+    image: ghcr.io/ykdz/speciality
+    container_name: speciality
     restart: unless-stopped
     ports:
       - "3000:3000"
     volumes:
-      - hrecipe-data:/app/data
+      - speciality-data:/app/data
     environment:
-      - TITLE=HRecipe
+      - TITLE=Speciality
       - FALLBACK_LOCALE=zh-CN
       - REVIEWS_ENABLED=true
       - HIDE_LANGUAGE_SWITCHER=false
@@ -93,7 +93,7 @@ services:
       - MAX_FILE_SIZE=52428800
 
 volumes:
-  hrecipe-data:
+  speciality-data:
 ```
 
 ```bash
@@ -108,7 +108,7 @@ docker compose up -d
 | `DATABASE_URL`           | `/app/data/recipes.db` | SQLite database file path                                     |
 | `UPLOAD_DIR`             | `./data/uploads`       | Upload image storage directory                                |
 | `MAX_FILE_SIZE`          | `52428800` (50 MB)     | Maximum upload file size in bytes                             |
-| `TITLE`                  | `HRecipe`              | Page title                                                    |
+| `TITLE`                  | `Speciality`           | Page title                                                    |
 | `REVIEWS_ENABLED`        | `true`                 | Enable review system (`true` / `false`)                       |
 | `FALLBACK_LOCALE`        | `zh-CN`                | Fallback language when browser language cannot be detected    |
 | `HIDE_LANGUAGE_SWITCHER` | `false`                | Hide the language switcher (`true` to hide)                   |
@@ -118,7 +118,7 @@ docker compose up -d
 
 ## MCP Integration
 
-HRecipe includes a built-in [Model Context Protocol](https://modelcontextprotocol.io) server at `/mcp`.
+Speciality includes a built-in [Model Context Protocol](https://modelcontextprotocol.io) server at `/mcp`.
 
 AI assistants (such as Claude, GitHub Copilot, etc.) can manage your recipe data directly via the MCP protocol, including:
 
@@ -131,8 +131,8 @@ MCP configuration example:
 ```json
 {
   "servers": {
-    "hrecipe": {
-      "type": "streamable-http",
+    "speciality": {
+      "type": "http",
       "url": "http://localhost:3000/mcp"
     }
   }

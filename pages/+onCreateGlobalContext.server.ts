@@ -22,7 +22,7 @@ const prepareDB = () => {
 
 export const onCreateGlobalContext = (globalContext: GlobalContextServer) => {
   globalContext.db = prepareDB();
-  globalContext.title = process.env.TITLE || "HRecipe";
+  globalContext.title = process.env.TITLE || "Speciality";
   globalContext.reviewsEnabled = process.env.REVIEWS_ENABLED !== "false";
   globalContext.hideLanguageSwitcher =
     process.env.HIDE_LANGUAGE_SWITCHER === "true";

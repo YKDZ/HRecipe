@@ -30,7 +30,7 @@ const ingredientItemSchema = z.object({
 export const registerRecipeResources = (server: McpServer) => {
   server.registerResource(
     "recipe_detail",
-    new ResourceTemplate("hrecipe://recipes/{id}", { list: undefined }),
+    new ResourceTemplate("speciality://recipes/{id}", { list: undefined }),
     {
       description:
         "Get full recipe details including steps, ingredients, and tags",
@@ -49,6 +49,26 @@ export const registerRecipeResources = (server: McpServer) => {
 };
 
 export const registerRecipeTools = (server: McpServer) => {
+  server.registerTool(
+    "get_recipe",
+    {
+      description:
+        "Get full recipe details including cooking steps, ingredients, and tags",
+      inputSchema: {
+        id: z.uuid().describe("Recipe UUID"),
+      },
+    },
+    async ({ id }) => {
+      const db = await getDb();
+      const recipe = q.getRecipeById(db, id);
+      if (!recipe) return notFound("Recipe");
+      const steps = q.getStepsByRecipeId(db, id);
+      const ingredients = q.getIngredientsByRecipeId(db, id);
+      const tags = q.getTagsByRecipeId(db, id);
+      return json({ ...recipe, steps, ingredients, tags });
+    },
+  );
+
   server.registerTool(
     "manage_recipe",
     {

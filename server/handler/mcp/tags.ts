@@ -17,7 +17,7 @@ import {
 export const registerTagResources = (server: McpServer) => {
   server.registerResource(
     "tags_list",
-    "hrecipe://tags",
+    "speciality://tags",
     { description: "List all tags" },
     async (uri) => {
       const db = await getDb();
@@ -27,7 +27,7 @@ export const registerTagResources = (server: McpServer) => {
 
   server.registerResource(
     "tag_detail",
-    new ResourceTemplate("hrecipe://tags/{id}", { list: undefined }),
+    new ResourceTemplate("speciality://tags/{id}", { list: undefined }),
     { description: "Get a tag by UUID" },
     async (uri, { id }) => {
       const db = await getDb();
@@ -38,6 +38,25 @@ export const registerTagResources = (server: McpServer) => {
 };
 
 export const registerTagTools = (server: McpServer) => {
+  server.registerTool(
+    "list_tags",
+    {
+      description: "List all tags, or get a single tag by UUID",
+      inputSchema: {
+        id: z.uuid().optional().describe("Tag UUID (omit to list all)"),
+      },
+    },
+    async ({ id }) => {
+      const db = await getDb();
+      if (id) {
+        const item = q.getTagById(db, id);
+        if (!item) return notFound("Tag");
+        return json(item);
+      }
+      return json(q.getAllTags(db));
+    },
+  );
+
   server.registerTool(
     "manage_tag",
     {

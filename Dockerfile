@@ -36,7 +36,7 @@ ENV NODE_ENV=production \
     HIDE_LANGUAGE_SWITCHER=false \
     FORCE_FALLBACK_LOCALE=false \
     MAX_FILE_SIZE=52428800 \
-    TITLE=HRecipe
+    TITLE=Speciality
 
 WORKDIR /app
 

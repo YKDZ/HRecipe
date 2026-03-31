@@ -17,7 +17,7 @@ import {
 export const registerIngredientResources = (server: McpServer) => {
   server.registerResource(
     "ingredients_list",
-    "hrecipe://ingredients",
+    "speciality://ingredients",
     { description: "List all ingredients" },
     async (uri) => {
       const db = await getDb();
@@ -27,7 +27,7 @@ export const registerIngredientResources = (server: McpServer) => {
 
   server.registerResource(
     "ingredient_detail",
-    new ResourceTemplate("hrecipe://ingredients/{id}", { list: undefined }),
+    new ResourceTemplate("speciality://ingredients/{id}", { list: undefined }),
     { description: "Get an ingredient by UUID" },
     async (uri, { id }) => {
       const db = await getDb();
@@ -38,6 +38,25 @@ export const registerIngredientResources = (server: McpServer) => {
 };
 
 export const registerIngredientTools = (server: McpServer) => {
+  server.registerTool(
+    "list_ingredients",
+    {
+      description: "List all ingredients, or get a single ingredient by UUID",
+      inputSchema: {
+        id: z.uuid().optional().describe("Ingredient UUID (omit to list all)"),
+      },
+    },
+    async ({ id }) => {
+      const db = await getDb();
+      if (id) {
+        const item = q.getIngredientById(db, id);
+        if (!item) return notFound("Ingredient");
+        return json(item);
+      }
+      return json(q.getAllIngredients(db));
+    },
+  );
+
   server.registerTool(
     "manage_ingredient",
     {

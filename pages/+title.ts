@@ -1,5 +1,5 @@
 import type { PageContext } from "vike/types";
 
 export function title(pageContext: PageContext) {
-  return pageContext.globalContext.title || "HRecipe";
+  return pageContext.globalContext.title || "Speciality";
 }

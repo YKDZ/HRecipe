@@ -12,7 +12,7 @@ export const registerReviewResources = (server: McpServer) => {
 
   server.registerResource(
     "recipe_reviews",
-    new ResourceTemplate("hrecipe://recipes/{recipeId}/reviews", {
+    new ResourceTemplate("speciality://recipes/{recipeId}/reviews", {
       list: undefined,
     }),
     { description: "List all reviews for a recipe, ordered by creation time" },
@@ -27,6 +27,20 @@ export const registerReviewResources = (server: McpServer) => {
 };
 
 export const registerReviewTools = (server: McpServer) => {
+  server.registerTool(
+    "list_reviews",
+    {
+      description: "List all reviews for a recipe, ordered by creation time",
+      inputSchema: {
+        recipeId: z.uuid().describe("Recipe UUID"),
+      },
+    },
+    async ({ recipeId }) => {
+      const db = await getDb();
+      return json(q.getReviewsByRecipeId(db, recipeId));
+    },
+  );
+
   server.registerTool(
     "manage_review",
     {

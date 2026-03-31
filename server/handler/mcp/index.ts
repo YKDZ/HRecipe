@@ -15,7 +15,7 @@ import { registerTagResources, registerTagTools } from "./tags";
 // ── MCP Server ──────────────────────────────────────────────────────────────
 
 const mcpServer = new McpServer({
-  name: "hrecipe",
+  name: "speciality",
   version: "1.0.0",
 });
 

@@ -22,7 +22,7 @@ const comboRecipeSchema = z.object({
 export const registerComboResources = (server: McpServer) => {
   server.registerResource(
     "combo_detail",
-    new ResourceTemplate("hrecipe://combos/{id}", { list: undefined }),
+    new ResourceTemplate("speciality://combos/{id}", { list: undefined }),
     {
       description:
         "Get full combo details including recipes and aggregated ingredients",
@@ -40,6 +40,25 @@ export const registerComboResources = (server: McpServer) => {
 };
 
 export const registerComboTools = (server: McpServer) => {
+  server.registerTool(
+    "get_combo",
+    {
+      description:
+        "Get full combo details including recipes and aggregated ingredients",
+      inputSchema: {
+        id: z.uuid().describe("Combo UUID"),
+      },
+    },
+    async ({ id }) => {
+      const db = await getDb();
+      const combo = q.getComboById(db, id);
+      if (!combo) return notFound("Combo");
+      const recipes = q.getRecipesByComboId(db, id);
+      const ingredients = q.getComboIngredients(db, id);
+      return json({ ...combo, recipes, ingredients });
+    },
+  );
+
   server.registerTool(
     "manage_combo",
     {

@@ -1,8 +1,8 @@
-# HRecipe
+# Speciality
 
 > A lovely home recipe management app focused on practicality.
 
-HRecipe is a self-hosted, full-stack recipe manager built with Vue 3, Hono, and SQLite. It helps families organize recipes, plan meals, and generate shopping lists. Supports Chinese and English with automatic language detection.
+Speciality is a self-hosted, full-stack recipe manager built with Vue 3, Hono, and SQLite. It helps families organize recipes, plan meals, and generate shopping lists. Supports Chinese and English with automatic language detection.
 
 ## Core Pages
 
@@ -29,14 +29,14 @@ HRecipe is a self-hosted, full-stack recipe manager built with Vue 3, Hono, and 
 
 ## MCP Server
 
-HRecipe provides a built-in [Model Context Protocol](https://modelcontextprotocol.io) server at the `/mcp` endpoint. AI assistants (Claude, GitHub Copilot, etc.) can connect via Streamable HTTP transport to manage recipe data programmatically.
+Speciality provides a built-in [Model Context Protocol](https://modelcontextprotocol.io) server at the `/mcp` endpoint. AI assistants (Claude, GitHub Copilot, etc.) can connect via Streamable HTTP transport to manage recipe data programmatically.
 
 ### MCP Client Configuration
 
 ```json
 {
   "servers": {
-    "hrecipe": {
+    "speciality": {
       "type": "streamable-http",
       "url": "http://localhost:3000/mcp"
     }
