@@ -1,9 +1,16 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, nextTick, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { toast } from "vue-sonner";
 
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import {
   Table,
@@ -20,18 +27,13 @@ import {
   groupShoppingItems,
 } from "@/lib/export";
 
-/**
- * execCommand('copy') 必须在同步的用户手势调用栈内执行，
- * 如果先 await clipboard.writeText 再回退到 execCommand，
- * 用户手势上下文已断开，execCommand 也会静默失败。
- * 因此在非安全上下文中直接同步走 execCommand，不经过 async 路径。
- */
-const copyToClipboard = async (text: string) => {
-  if (window.isSecureContext && navigator.clipboard?.writeText) {
-    await navigator.clipboard.writeText(text);
-    return;
-  }
+import { Textarea } from "./ui/textarea";
 
+/**
+ * 同步执行 execCommand('copy')，保留用户手势上下文。
+ * 返回 true 表示复制成功。
+ */
+const execCommandCopy = (text: string): boolean => {
   const ta = document.createElement("textarea");
   ta.value = text;
   ta.style.position = "fixed";
@@ -39,8 +41,14 @@ const copyToClipboard = async (text: string) => {
   ta.setAttribute("readonly", "");
   document.body.appendChild(ta);
   ta.select();
-  document.execCommand("copy");
+  let ok = false;
+  try {
+    ok = document.execCommand("copy");
+  } catch {
+    ok = false;
+  }
   ta.remove();
+  return ok;
 };
 
 export interface ShoppingItem {
@@ -63,6 +71,28 @@ const props = withDefaults(
 const { t } = useI18n();
 const showMerged = ref(true);
 
+const fallbackText = ref("");
+const fallbackDialogOpen = ref(false);
+const fallbackTextareaRef = ref<InstanceType<typeof Textarea>>();
+
+const showFallbackDialog = (text: string) => {
+  fallbackText.value = text;
+  fallbackDialogOpen.value = true;
+};
+
+watch(fallbackDialogOpen, async (open) => {
+  if (open) {
+    await nextTick();
+    const el = fallbackTextareaRef.value?.$el as
+      | HTMLTextAreaElement
+      | undefined;
+    el?.focus();
+    el?.select();
+  } else {
+    fallbackText.value = "";
+  }
+});
+
 const isSingleRecipe = computed(() => {
   if (props.items.length === 0) return true;
   const first = props.items[0]!.recipeName;
@@ -80,9 +110,24 @@ const handleCopyText = () => {
   const text = showMerged.value
     ? exportMergedAsText(mergedItems.value, titleStr, isSingleRecipe.value)
     : exportGroupedAsText(groupedItems.value, titleStr, isSingleRecipe.value);
-  void copyToClipboard(text).then(() => {
-    toast(t("已复制到剪贴板"));
-  });
+
+  // 安全上下文：使用 Clipboard API
+  // if (window.isSecureContext && navigator.clipboard?.writeText) {
+  //   void navigator.clipboard.writeText(text).then(
+  //     () => toast(t("已复制到剪贴板")),
+  //     () => showFallbackDialog(text),
+  //   );
+  //   return;
+  // }
+
+  // // 非安全上下文：同步 execCommand 保留用户手势
+  // if (execCommandCopy(text)) {
+  //   toast(t("已复制到剪贴板"));
+  //   return;
+  // }
+
+  // 两种方式都失败：弹出手动复制对话框
+  showFallbackDialog(text);
 };
 </script>
 
@@ -119,7 +164,7 @@ const handleCopyText = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          <!-- 合并视图：数值同单位求和 -->
+          <!-- 合并视图：数值（同单位和备注）求和 -->
           <template v-if="showMerged">
             <TableRow
               v-for="item in mergedItems"
@@ -173,5 +218,25 @@ const handleCopyText = () => {
       </Table>
       <ScrollBar orientation="horizontal" />
     </ScrollArea>
+
+    <Dialog v-model:open="fallbackDialogOpen">
+      <DialogContent class="max-w-lg">
+        <DialogHeader>
+          <DialogTitle>{{ t("手动复制") }}</DialogTitle>
+          <DialogDescription>
+            {{ t("自动复制不可用，请手动全选并复制以下内容") }}
+          </DialogDescription>
+        </DialogHeader>
+        <ScrollArea class="h-64 w-full rounded-md border">
+          <Textarea
+            ref="fallbackTextareaRef"
+            readonly
+            :default-value="fallbackText"
+            class="min-h-full w-full resize-none border-0 shadow-none focus-visible:ring-0"
+          />
+          <ScrollBar orientation="vertical" />
+        </ScrollArea>
+      </DialogContent>
+    </Dialog>
   </div>
 </template>
