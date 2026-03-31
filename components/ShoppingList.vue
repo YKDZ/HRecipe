@@ -112,19 +112,19 @@ const handleCopyText = () => {
     : exportGroupedAsText(groupedItems.value, titleStr, isSingleRecipe.value);
 
   // 安全上下文：使用 Clipboard API
-  // if (window.isSecureContext && navigator.clipboard?.writeText) {
-  //   void navigator.clipboard.writeText(text).then(
-  //     () => toast(t("已复制到剪贴板")),
-  //     () => showFallbackDialog(text),
-  //   );
-  //   return;
-  // }
+  if (window.isSecureContext && navigator.clipboard?.writeText) {
+    void navigator.clipboard.writeText(text).then(
+      () => toast(t("已复制到剪贴板")),
+      () => showFallbackDialog(text),
+    );
+    return;
+  }
 
-  // // 非安全上下文：同步 execCommand 保留用户手势
-  // if (execCommandCopy(text)) {
-  //   toast(t("已复制到剪贴板"));
-  //   return;
-  // }
+  // 非安全上下文：同步 execCommand 保留用户手势
+  if (execCommandCopy(text)) {
+    toast(t("已复制到剪贴板"));
+    return;
+  }
 
   // 两种方式都失败：弹出手动复制对话框
   showFallbackDialog(text);
