@@ -29,28 +29,6 @@ import {
 
 import { Textarea } from "./ui/textarea";
 
-/**
- * 同步执行 execCommand('copy')，保留用户手势上下文。
- * 返回 true 表示复制成功。
- */
-const execCommandCopy = (text: string): boolean => {
-  const ta = document.createElement("textarea");
-  ta.value = text;
-  ta.style.position = "fixed";
-  ta.style.opacity = "0";
-  ta.setAttribute("readonly", "");
-  document.body.appendChild(ta);
-  ta.select();
-  let ok = false;
-  try {
-    ok = document.execCommand("copy");
-  } catch {
-    ok = false;
-  }
-  ta.remove();
-  return ok;
-};
-
 export interface ShoppingItem {
   ingredientId: string;
   ingredientName: string;
@@ -120,13 +98,7 @@ const handleCopyText = () => {
     return;
   }
 
-  // 非安全上下文：同步 execCommand 保留用户手势
-  if (execCommandCopy(text)) {
-    toast(t("已复制到剪贴板"));
-    return;
-  }
-
-  // 两种方式都失败：弹出手动复制对话框
+  // 非安全上下文：弹出手动复制对话框
   showFallbackDialog(text);
 };
 </script>
